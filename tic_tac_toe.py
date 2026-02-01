@@ -10,20 +10,20 @@ class TicTacToeGame:
         self.buttons = []
         self.game_over = False
 
-        self.root.configure(bg='lightblue')
+        self.root.configure(bg='teal')
         self.create_widgets()
 
     def create_widgets(self):
         for i in range(9):
             btn = tk.Button(self.root, text="", font=('Arial', 20), height=3, width=6,
                             command=lambda i=i: self.on_button_click(i))
-            btn.grid(row=i // 3, column=i % 3)
+            btn.grid(row=i // 3, column=i % 3, padx=1, pady=1)
             self.buttons.append(btn)
         
         self.default_btn_bg = self.buttons[0].cget('bg')
 
         reset_btn = tk.Button(self.root, text="Reset Game", font=('Arial', 12), command=self.reset_game)
-        reset_btn.grid(row=3, column=0, columnspan=3, sticky="we")
+        reset_btn.grid(row=3, column=0, columnspan=3, sticky="we", padx=5, pady=5)
 
     def on_button_click(self, index):
         if self.board[index] == "" and not self.game_over:
