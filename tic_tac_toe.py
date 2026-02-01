@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, colorchooser, Menu
 
 class TicTacToeLogic:
     def __init__(self):
@@ -76,7 +76,42 @@ class TicTacToeGUI:
                                   bg=self.colors["bg"], fg=self.colors["text"])
         self.score_label.grid(row=0, column=0, columnspan=3, pady=(10, 5))
         
+        self.create_menu()
         self.create_widgets()
+    
+    def create_menu(self):
+        menubar = Menu(self.root)
+        self.root.config(menu=menubar)
+        
+        options_menu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Options", menu=options_menu)
+        options_menu.add_command(label="Change Color X", command=self.choose_color_x)
+        options_menu.add_command(label="Change Color O", command=self.choose_color_o)
+
+    def choose_color_x(self):
+        color = colorchooser.askcolor(title="Choose color for X")[1]
+        if color:
+            self.colors["X"] = color
+            self.update_board_colors()
+
+    def choose_color_o(self):
+        color = colorchooser.askcolor(title="Choose color for O")[1]
+        if color:
+            self.colors["O"] = color
+            self.update_board_colors()
+
+    def update_board_colors(self):
+        for i, btn in enumerate(self.buttons):
+            player = self.game.board[i]
+            if player == "X":
+                btn.config(fg=self.colors["X"])
+            elif player == "O":
+                btn.config(fg=self.colors["O"])
+        
+        # Also update reset button if needed, but it uses X color currently
+        # Re-creating or re-configuring widgets that depend on colors might be needed if we want full dynamic update
+        # For now, updating board pieces is the most important.
+
     
     def create_widgets(self):
         for i in range(9):
