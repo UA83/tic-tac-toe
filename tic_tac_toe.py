@@ -1,43 +1,30 @@
 import tkinter as tk
 from tkinter import messagebox
 
-class TicTacToeGame:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Tic Tac Toe")
+class TicTacToeLogic:
+    def __init__(self):
         self.current_player = "X"
         self.board = [""] * 9
-        self.buttons = []
+        self.winner = None
         self.game_over = False
+        self.winning_combo = None
 
-        self.root.configure(bg='teal')
-        self.create_widgets()
-
-    def create_widgets(self):
-        for i in range(9):
-            btn = tk.Button(self.root, text="", font=('Arial', 20), height=3, width=6,
-                            command=lambda i=i: self.on_button_click(i))
-            btn.grid(row=i // 3, column=i % 3, padx=1, pady=1)
-            self.buttons.append(btn)
-        
-        self.default_btn_bg = self.buttons[0].cget('bg')
-
-        reset_btn = tk.Button(self.root, text="Reset Game", font=('Arial', 12), command=self.reset_game)
-        reset_btn.grid(row=3, column=0, columnspan=3, sticky="we", padx=5, pady=5)
-
-    def on_button_click(self, index):
+    def make_move(self, index):
         if self.board[index] == "" and not self.game_over:
             self.board[index] = self.current_player
-            self.buttons[index].config(text=self.current_player)
-            
             if self.check_winner():
-                messagebox.showinfo("Game Over", f"Player {self.current_player} wins!")
                 self.game_over = True
+                self.winner = self.current_player
             elif "" not in self.board:
-                messagebox.showinfo("Game Over", "It's a draw!")
                 self.game_over = True
+                self.winner = "Draw"
             else:
-                self.current_player = "O" if self.current_player == "X" else "X"
+                self.switch_player()
+            return True
+        return False
+
+    def switch_player(self):
+        self.current_player = "O" if self.current_player == "X" else "X"
 
     def check_winner(self):
         winning_combinations = [
@@ -48,22 +35,64 @@ class TicTacToeGame:
 
         for a, b, c in winning_combinations:
             if self.board[a] == self.board[b] == self.board[c] and self.board[a] != "":
-                self.highlight_winner(a, b, c)
+                self.winning_combo = (a, b, c)
                 return True
         return False
 
-    def highlight_winner(self, a, b, c):
-        for index in [a, b, c]:
-            self.buttons[index].config(bg="lightgreen")
-
-    def reset_game(self):
+    def reset(self):
         self.current_player = "X"
         self.board = [""] * 9
+        self.winner = None
         self.game_over = False
+        self.winning_combo = None
+
+class TicTacToeGUI:
+    def __init__(self, root):
+        self.game = TicTacToeLogic()
+        self.root = root
+        self.root.title("Tic Tac Toe")
+        self.buttons = []
+
+        self.root.configure(bg='lightblue')
+        self.create_widgets()
+
+    def create_widgets(self):
+        for i in range(9):
+            btn = tk.Button(self.root, text="", font=('Arial', 20), height=3, width=6,
+                            command=lambda i=i: self.on_button_click(i))
+            btn.grid(row=i // 3, column=i % 3, padx=5, pady=5)
+            self.buttons.append(btn)
+        
+        self.default_btn_bg = self.buttons[0].cget('bg')
+
+        reset_btn = tk.Button(self.root, text="Reset Game", font=('Arial', 12), command=self.reset_game)
+        reset_btn.grid(row=3, column=0, columnspan=3, sticky="we", padx=5, pady=5)
+
+    def on_button_click(self, index):
+        if self.game.make_move(index):
+            self.update_ui(index)
+            
+            if self.game.game_over:
+                if self.game.winner == "Draw":
+                    messagebox.showinfo("Game Over", "It's a draw!")
+                else:
+                    self.highlight_winner()
+                    messagebox.showinfo("Game Over", f"Player {self.game.winner} wins!")
+
+    def update_ui(self, index):
+        self.buttons[index].config(text=self.game.board[index])
+
+    def highlight_winner(self):
+        if self.game.winning_combo:
+            for index in self.game.winning_combo:
+                self.buttons[index].config(bg="lightgreen")
+
+    def reset_game(self):
+        self.game.reset()
         for btn in self.buttons:
             btn.config(text="", bg=self.default_btn_bg)
 
 if __name__ == "__main__":
     root = tk.Tk()
-    game = TicTacToeGame(root)
+    app = TicTacToeGUI(root)
     root.mainloop()
