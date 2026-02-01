@@ -60,24 +60,42 @@ class TicTacToeGUI:
         self.buttons = []
 
 
-        self.root.configure(bg='lightblue')
+        self.colors = {
+            "bg": "#2C3E50",
+            "btn_bg": "#34495E",
+            "text": "#ECF0F1",
+            "X": "#E74C3C",
+            "O": "#3498DB",
+            "win": "#2ECC71"
+        }
+
+        self.root.configure(bg=self.colors["bg"])
         
-        self.score_label = tk.Label(self.root, text="Score - X: 0 | O: 0", font=('Arial', 14), bg='lightblue')
-        self.score_label.grid(row=0, column=0, columnspan=3)
+        self.score_label = tk.Label(self.root, text="Score - X: 0 | O: 0", 
+                                  font=('Helvetica', 16, 'bold'), 
+                                  bg=self.colors["bg"], fg=self.colors["text"])
+        self.score_label.grid(row=0, column=0, columnspan=3, pady=(10, 5))
         
         self.create_widgets()
     
     def create_widgets(self):
         for i in range(9):
-            btn = tk.Button(self.root, text="", font=('Arial', 20), height=3, width=6,
+            btn = tk.Button(self.root, text="", font=('Helvetica', 24, 'bold'), height=2, width=5,
+                            bg=self.colors["btn_bg"], fg=self.colors["text"],
+                            activebackground=self.colors["bg"], activeforeground=self.colors["text"],
+                            relief="flat", borderwidth=0,
                             command=lambda i=i: self.on_button_click(i))
-            btn.grid(row=(i // 3) + 1, column=i % 3)
+            btn.grid(row=(i // 3) + 1, column=i % 3, padx=2, pady=2)
             self.buttons.append(btn)
         
-        self.default_btn_bg = self.buttons[0].cget('bg')
+        # Removed default_btn_bg capture as we use defined colors now
 
-        reset_btn = tk.Button(self.root, text="Reset Game", font=('Arial', 12), command=self.reset_game)
-        reset_btn.grid(row=4, column=0, columnspan=3, sticky="we")
+        reset_btn = tk.Button(self.root, text="Reset Game", font=('Helvetica', 12, 'bold'),
+                              bg=self.colors["X"], fg=self.colors["text"],
+                              activebackground="#C0392B", activeforeground=self.colors["text"],
+                              relief="flat", borderwidth=0,
+                              command=self.reset_game)
+        reset_btn.grid(row=4, column=0, columnspan=3, sticky="we", padx=10, pady=(5, 10))
 
     def on_button_click(self, index):
         if self.game.make_move(index):
@@ -98,17 +116,19 @@ class TicTacToeGUI:
         self.score_label.config(text=f"Score - X: {scores['X']} | O: {scores['O']}")
 
     def update_ui(self, index):
-        self.buttons[index].config(text=self.game.board[index])
+        player = self.game.board[index]
+        color = self.colors["X"] if player == "X" else self.colors["O"]
+        self.buttons[index].config(text=player, fg=color)
 
     def highlight_winner(self):
         if self.game.winning_combo:
             for index in self.game.winning_combo:
-                self.buttons[index].config(bg="lightgreen")
+                self.buttons[index].config(bg=self.colors["win"], fg="white")
 
     def reset_game(self):
         self.game.reset()
         for btn in self.buttons:
-            btn.config(text="", bg=self.default_btn_bg)
+            btn.config(text="", bg=self.colors["btn_bg"])
 
 if __name__ == "__main__":
     root = tk.Tk()

@@ -1,6 +1,7 @@
 # Tic-Tac-Toe
 
-A simple Tic-Tac-Toe game implemented in Python using Tkinter.
+A modern, dark-themed Tic-Tac-Toe game implemented in Python using Tkinter.
+Features include a sleek UI, score tracking, and auto-reset functionality.
 
 ## Prerequisites
 
