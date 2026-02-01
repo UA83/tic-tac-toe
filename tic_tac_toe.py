@@ -8,6 +8,7 @@ class TicTacToeLogic:
         self.winner = None
         self.game_over = False
         self.winning_combo = None
+        self.scores = {"X": 0, "O": 0}
 
     def make_move(self, index):
         if self.board[index] == "" and not self.game_over:
@@ -15,6 +16,7 @@ class TicTacToeLogic:
             if self.check_winner():
                 self.game_over = True
                 self.winner = self.current_player
+                self.scores[self.current_player] += 1
             elif "" not in self.board:
                 self.game_over = True
                 self.winner = "Draw"
@@ -57,20 +59,25 @@ class TicTacToeGUI:
         self.root.title("Tic Tac Toe")
         self.buttons = []
 
-        self.root.configure(bg='lightblue')
-        self.create_widgets()
 
+        self.root.configure(bg='lightblue')
+        
+        self.score_label = tk.Label(self.root, text="Score - X: 0 | O: 0", font=('Arial', 14), bg='lightblue')
+        self.score_label.grid(row=0, column=0, columnspan=3, pady=5)
+        
+        self.create_widgets()
+    
     def create_widgets(self):
         for i in range(9):
             btn = tk.Button(self.root, text="", font=('Arial', 20), height=3, width=6,
                             command=lambda i=i: self.on_button_click(i))
-            btn.grid(row=i // 3, column=i % 3, padx=5, pady=5)
+            btn.grid(row=(i // 3) + 1, column=i % 3, padx=5, pady=5)
             self.buttons.append(btn)
         
         self.default_btn_bg = self.buttons[0].cget('bg')
 
         reset_btn = tk.Button(self.root, text="Reset Game", font=('Arial', 12), command=self.reset_game)
-        reset_btn.grid(row=3, column=0, columnspan=3, sticky="we", padx=5, pady=5)
+        reset_btn.grid(row=4, column=0, columnspan=3, sticky="we", padx=5, pady=5)
 
     def on_button_click(self, index):
         if self.game.make_move(index):
@@ -79,9 +86,16 @@ class TicTacToeGUI:
             if self.game.game_over:
                 if self.game.winner == "Draw":
                     messagebox.showinfo("Game Over", "It's a draw!")
+                    self.reset_game()
                 else:
                     self.highlight_winner()
+                    self.update_score_label()
                     messagebox.showinfo("Game Over", f"Player {self.game.winner} wins!")
+                self.reset_game()
+    
+    def update_score_label(self):
+        scores = self.game.scores
+        self.score_label.config(text=f"Score - X: {scores['X']} | O: {scores['O']}")
 
     def update_ui(self, index):
         self.buttons[index].config(text=self.game.board[index])
