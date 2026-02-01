@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, colorchooser, Menu
+from tkinter import messagebox, colorchooser, Toplevel
 
 class TicTacToeLogic:
     def __init__(self):
@@ -8,6 +8,9 @@ class TicTacToeLogic:
         self.winner = None
         self.game_over = False
         self.winning_combo = None
+        self.scores = {"X": 0, "O": 0}
+
+    def reset_scores(self):
         self.scores = {"X": 0, "O": 0}
 
     def make_move(self, index):
@@ -71,31 +74,64 @@ class TicTacToeGUI:
 
         self.root.configure(bg=self.colors["bg"])
         
-        self.score_label = tk.Label(self.root, text="Score - X: 0 | O: 0", 
-                                  font=('Helvetica', 16, 'bold'), 
-                                  bg=self.colors["bg"], fg=self.colors["text"])
-        self.score_label.grid(row=0, column=0, columnspan=3, pady=(10, 5))
+        self.score_frame = tk.Frame(self.root, bg=self.colors["bg"])
+        self.score_frame.grid(row=0, column=0, columnspan=3, pady=(10, 5))
+
+        self.score_label_x = tk.Label(self.score_frame, text="X: 0", 
+                                    font=('Helvetica', 16, 'bold'), 
+                                    bg=self.colors["bg"], fg=self.colors["X"])
+        self.score_label_x.pack(side="left", padx=10)
+
+        self.score_label_o = tk.Label(self.score_frame, text="O: 0", 
+                                    font=('Helvetica', 16, 'bold'), 
+                                    bg=self.colors["bg"], fg=self.colors["O"])
+        self.score_label_o.pack(side="left", padx=10)
         
-        self.create_menu()
+        self.score_label_o.pack(side="left", padx=10)
+        
+        # self.create_menu() # Removed native menu
         self.create_widgets()
     
-    def create_menu(self):
-        menubar = Menu(self.root)
-        self.root.config(menu=menubar)
-        
-        options_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Options", menu=options_menu)
-        options_menu.add_command(label="Change Color X", command=self.choose_color_x)
-        options_menu.add_command(label="Change Color O", command=self.choose_color_o)
+    # create_menu removed
 
-    def choose_color_x(self):
-        color = colorchooser.askcolor(title="Choose color for X")[1]
+    def open_settings(self):
+        settings_win = Toplevel(self.root)
+        settings_win.title("Settings")
+        settings_win.configure(bg=self.colors["bg"])
+        settings_win.geometry("300x200")
+        
+        lbl = tk.Label(settings_win, text="Player Colors", font=('Helvetica', 14, 'bold'),
+                       bg=self.colors["bg"], fg=self.colors["text"])
+        lbl.pack(pady=10)
+        
+        btn_x = tk.Button(settings_win, text="Color for X", font=('Helvetica', 12),
+                          bg=self.colors["btn_bg"], fg=self.colors["text"],
+                          relief="flat", width=15,
+                          command=lambda: self.choose_color_x(settings_win))
+        btn_x.pack(pady=5)
+
+        btn_o = tk.Button(settings_win, text="Color for O", font=('Helvetica', 12),
+                          bg=self.colors["btn_bg"], fg=self.colors["text"],
+                          relief="flat", width=15,
+                          command=lambda: self.choose_color_o(settings_win))
+        btn_o.pack(pady=5)
+
+        close_btn = tk.Button(settings_win, text="Close", font=('Helvetica', 10),
+                              bg=self.colors["X"], fg=self.colors["text"],
+                              relief="flat", width=10,
+                              command=settings_win.destroy)
+        close_btn.pack(pady=15)
+    
+    # choose_color_x and choose_color_o modified to take parent
+
+    def choose_color_x(self, parent=None):
+        color = colorchooser.askcolor(title="Choose color for X", parent=parent)[1]
         if color:
             self.colors["X"] = color
             self.update_board_colors()
 
-    def choose_color_o(self):
-        color = colorchooser.askcolor(title="Choose color for O")[1]
+    def choose_color_o(self, parent=None):
+        color = colorchooser.askcolor(title="Choose color for O", parent=parent)[1]
         if color:
             self.colors["O"] = color
             self.update_board_colors()
@@ -108,9 +144,12 @@ class TicTacToeGUI:
             elif player == "O":
                 btn.config(fg=self.colors["O"])
         
-        # Also update reset button if needed, but it uses X color currently
-        # Re-creating or re-configuring widgets that depend on colors might be needed if we want full dynamic update
-        # For now, updating board pieces is the most important.
+        
+        self.score_label_x.config(fg=self.colors["X"])
+        self.score_label_o.config(fg=self.colors["O"])
+        
+        # Also update reset button logic (if we want reset button to match active player or X)
+        pass
 
     
     def create_widgets(self):
@@ -125,12 +164,31 @@ class TicTacToeGUI:
         
         # Removed default_btn_bg capture as we use defined colors now
 
-        reset_btn = tk.Button(self.root, text="Reset Game", font=('Helvetica', 12, 'bold'),
-                              bg=self.colors["X"], fg=self.colors["text"],
-                              activebackground="#C0392B", activeforeground=self.colors["text"],
-                              relief="flat", borderwidth=0,
+        # Control buttons frame
+        ctrl_frame = tk.Frame(self.root, bg=self.colors["bg"])
+        ctrl_frame.grid(row=4, column=0, columnspan=3, pady=(10, 10))
+
+        reset_btn = tk.Button(ctrl_frame, text="Reset Game", font=('Helvetica', 10, 'bold'),
+                              bg=self.colors["btn_bg"], fg=self.colors["text"],
+                              relief="flat", width=10,
                               command=self.reset_game)
-        reset_btn.grid(row=4, column=0, columnspan=3, sticky="we", padx=10, pady=(5, 10))
+        reset_btn.pack(side="left", padx=5)
+
+        reset_score_btn = tk.Button(ctrl_frame, text="Reset Score", font=('Helvetica', 10, 'bold'),
+                                    bg=self.colors["btn_bg"], fg=self.colors["text"],
+                                    relief="flat", width=10,
+                                    command=self.reset_scores)
+        reset_score_btn.pack(side="left", padx=5)
+
+        settings_btn = tk.Button(ctrl_frame, text="Settings", font=('Helvetica', 10, 'bold'),
+                                 bg=self.colors["btn_bg"], fg=self.colors["text"],
+                                 relief="flat", width=8,
+                                 command=self.open_settings)
+        settings_btn.pack(side="left", padx=5)
+
+    def reset_scores(self):
+        self.game.reset_scores()
+        self.update_score_label()
 
     def on_button_click(self, index):
         if self.game.make_move(index):
@@ -148,7 +206,8 @@ class TicTacToeGUI:
     
     def update_score_label(self):
         scores = self.game.scores
-        self.score_label.config(text=f"Score - X: {scores['X']} | O: {scores['O']}")
+        self.score_label_x.config(text=f"X: {scores['X']}")
+        self.score_label_o.config(text=f"O: {scores['O']}")
 
     def update_ui(self, index):
         player = self.game.board[index]
@@ -157,8 +216,10 @@ class TicTacToeGUI:
 
     def highlight_winner(self):
         if self.game.winning_combo:
+            winner = self.game.winner
+            win_color = self.colors["X"] if winner == "X" else self.colors["O"]
             for index in self.game.winning_combo:
-                self.buttons[index].config(bg=self.colors["win"], fg="white")
+                self.buttons[index].config(bg=win_color, fg="white")
 
     def reset_game(self):
         self.game.reset()
