@@ -10,6 +10,7 @@ class TicTacToeGame:
         self.buttons = []
         self.game_over = False
 
+        self.root.configure(bg='lightblue')
         self.create_widgets()
 
     def create_widgets(self):
