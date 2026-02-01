@@ -63,7 +63,7 @@ class TicTacToeGUI:
         self.root.configure(bg='lightblue')
         
         self.score_label = tk.Label(self.root, text="Score - X: 0 | O: 0", font=('Arial', 14), bg='lightblue')
-        self.score_label.grid(row=0, column=0, columnspan=3, pady=5)
+        self.score_label.grid(row=0, column=0, columnspan=3)
         
         self.create_widgets()
     
@@ -71,13 +71,13 @@ class TicTacToeGUI:
         for i in range(9):
             btn = tk.Button(self.root, text="", font=('Arial', 20), height=3, width=6,
                             command=lambda i=i: self.on_button_click(i))
-            btn.grid(row=(i // 3) + 1, column=i % 3, padx=5, pady=5)
+            btn.grid(row=(i // 3) + 1, column=i % 3)
             self.buttons.append(btn)
         
         self.default_btn_bg = self.buttons[0].cget('bg')
 
         reset_btn = tk.Button(self.root, text="Reset Game", font=('Arial', 12), command=self.reset_game)
-        reset_btn.grid(row=4, column=0, columnspan=3, sticky="we", padx=5, pady=5)
+        reset_btn.grid(row=4, column=0, columnspan=3, sticky="we")
 
     def on_button_click(self, index):
         if self.game.make_move(index):
