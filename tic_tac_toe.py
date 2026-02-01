@@ -40,7 +40,11 @@ class TicTacToeLogic:
         return False
 
     def reset(self):
-        self.current_player = "X"
+        if self.winner and self.winner != "Draw":
+            self.current_player = self.winner
+        else:
+            self.current_player = "X"
+            
         self.board = [""] * 9
         self.winner = None
         self.game_over = False
