@@ -117,7 +117,8 @@ class TicTacToeGUI:
         btn_o.pack(pady=5)
 
         close_btn = tk.Button(settings_win, text="Close", font=('Helvetica', 10),
-                              bg=self.colors["X"], fg=self.colors["text"],
+                              bg="#E74C3C", fg=self.colors["text"],
+                              activebackground="#C0392B", activeforeground=self.colors["text"],
                               relief="flat", width=10,
                               command=settings_win.destroy)
         close_btn.pack(pady=15)
